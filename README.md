@@ -28,6 +28,9 @@ The hiding is done using simple bootstrap 4 responsive utility classes (```d-non
 Please refer to bootstrap documentation if you are not already familiary with those classes.
 
 
+Also, there is some background synchronizing between tabs of the tabs and tabs of the accordion, as you have already guessed.
+
+
 
 Options
 ==========
@@ -91,6 +94,93 @@ At the moment, the options are the following (excerpt from the "plugin" source c
     };
 ```
 
+
+How to use
+=============
+
+Just look at the source code of the demo (see the link at the top of this document).
+
+Basically, create some tab navigation first (using regular bootstrap markup):
+
+
+```html
+<ul class="nav nav-tabs d-none d-sm-flex" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="tab-1" data-toggle="tab" href="#pane-1" role="tab" aria-controls="#pane-1" aria-selected="true" data-item-number="1">Tab 1</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " id="tab-2" data-toggle="tab" href="#pane-2" role="tab" aria-controls="#pane-2" aria-selected="false" data-item-number="2">Tab 2</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " id="tab-3" data-toggle="tab" href="#pane-3" role="tab" aria-controls="#pane-3" aria-selected="false" data-item-number="3">Tab 3</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " id="tab-4" data-toggle="tab" href="#pane-4" role="tab" aria-controls="#pane-4" aria-selected="false" data-item-number="4">Tab 4</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " id="tab-5" data-toggle="tab" href="#pane-5" role="tab" aria-controls="#pane-5" aria-selected="false" data-item-number="5">Tab 5</a>
+    </li>
+</ul>
+<div class="tab-content d-none d-sm-block" id="myTabContent">
+    <div class="tab-pane fade p-5 show active" id="pane-1" role="tabpanel" aria-labelledby="tab-1">
+        <h2>Content of tab 1</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi cupiditate dicta
+            harum non
+            repellendus rerum tenetur unde voluptatibus. Excepturi, expedita!
+        </p>
+    </div>
+    <div class="tab-pane fade p-5 " id="pane-2" role="tabpanel" aria-labelledby="tab-2">
+        <h2>Content of tab 2</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi cupiditate dicta
+            harum non
+            repellendus rerum tenetur unde voluptatibus. Excepturi, expedita!
+        </p>
+    </div>
+    <div class="tab-pane fade p-5 " id="pane-3" role="tabpanel" aria-labelledby="tab-3">
+        <h2>Content of tab 3</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi cupiditate dicta
+            harum non
+            repellendus rerum tenetur unde voluptatibus. Excepturi, expedita!
+        </p>
+    </div>
+    <div class="tab-pane fade p-5 " id="pane-4" role="tabpanel" aria-labelledby="tab-4">
+        <h2>Content of tab 4</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi cupiditate dicta
+            harum non
+            repellendus rerum tenetur unde voluptatibus. Excepturi, expedita!
+        </p>
+    </div>
+    <div class="tab-pane fade p-5 " id="pane-5" role="tabpanel" aria-labelledby="tab-5">
+        <h2>Content of tab 5</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Animi cupiditate dicta
+            harum non
+            repellendus rerum tenetur unde voluptatibus. Excepturi, expedita!
+        </p>
+    </div>
+</div>
+
+
+
+```
+
+
+That was the hard part.
+And now call the jquery plugin:
+
+
+```js
+$(document).ready(function () {
+    $('#myTab').bootstrapResponsiveTabs({
+        breakPoint: "sm", // sm | md | lg | xl
+        // accordionItemTemplate: $('#accordion-item-template-wrapper .card:first'),
+    });
+});
+```
 
 
 
