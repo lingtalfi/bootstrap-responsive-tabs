@@ -168,6 +168,7 @@
 
                 var jAccordionContent;
                 var jAccordionHeaderLink;
+                var jAccordionItem;
 
 
                 var accordionId = generateId('accordion');
@@ -199,7 +200,7 @@
                     var tabContent = $(this).html();
                     var s = $this.options.accordionItemTemplate;
                     if ('object' === typeof (s)) { // assuming a jquery object
-                        s = s.html();
+                        s = s.prop("outerHTML");
                     }
 
                     s = s.replace(/\$i/g, itemCpt);
@@ -207,16 +208,15 @@
                     s = s.replace(/\$show/g, show);
                     s = s.replace(/\$accordionId/g, accordionId);
                     s = s.replace(/\$content/g, tabContent);
-                    var jAccordionItem = $(s);
+                    jAccordionItem = $(s);
                     $this.jAccordion.append(jAccordionItem);
 
 
                     jAccordionHeaderLink = jAccordionItem.find('[data-toggle="collapse"]');
-                    $this.targets[itemCpt]['accordionHeaderLink'] = jAccordionHeaderLink;
-
-
-
                     jAccordionContent = jAccordionItem.find('#collapse-' + itemCpt);
+
+
+                    $this.targets[itemCpt]['accordionHeaderLink'] = jAccordionHeaderLink;
                     if (null !== $this.options.targetAccordionContent) {
                         jAccordionContent = jAccordionContent.find($this.options.targetAccordionContent);
                     }
@@ -228,9 +228,9 @@
 
 
                 var n;
-                this.jTabsHeaderLinks.each(function(){
-                     n = $(this).attr("data-item-number");
-                     $this.targets[n]['accordionHeaderLink'].text($(this).text());
+                this.jTabsHeaderLinks.each(function () {
+                    n = $(this).attr("data-item-number");
+                    $this.targets[n]['accordionHeaderLink'].text($(this).text());
                 });
 
             }

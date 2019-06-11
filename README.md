@@ -221,6 +221,8 @@ Here is the default html structure of the accordion item template:
 ```
 
 
+Checkout the [second example of the Bootstrap Responsive Tabs demo](https://lingtalfi.com/bootstrap-responsive-tabs?p=example2) for an example of stylized widget.
+
 
 
 
@@ -229,6 +231,10 @@ Here is the default html structure of the accordion item template:
 History Log
 ------------------
     
+- 1.1.3 -- 2019-06-11
+
+    - fix "prepareStructure" not taking the child of accordionItemTemplate instead of the parent (when used with jquery element)
+
 - 1.1.2 -- 2019-06-11
 
     - fix bad content targetted
