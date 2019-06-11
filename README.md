@@ -21,14 +21,7 @@ when the screen is smaller than a certain breakpoint.
 
 The technique I use is pretty simple:
 
-when the page loads, the plugin creates the accordion version of the existing tabs, 
-and then hides one or the other, depending on the screen size. 
-
-The hiding is done using simple bootstrap 4 responsive utility classes (```d-none```, ```d-*-block```, ...).
-Please refer to bootstrap documentation if you are not already familiary with those classes.
-
-
-Also, there is some background synchronizing between tabs of the tabs and tabs of the accordion, as you have already guessed.
+when the page loads, the plugin creates the accordion version of the existing tabs. Then, it swaps/hides the corresponding elements depending on the screen size. 
 
 
 
@@ -73,13 +66,15 @@ At the moment, the options are the following (excerpt from the "plugin" source c
             '                                </div>\n' +
             '                            </div>\n' +
             '                        </div>',
-        breakPoint: 'sm',
         /**
-         * those three classes are added dynamically once on load
+         * The threshold below which the tabs turn into accordions.
+         * We can use either a number (of pixels), or a bootstrap 4 class equivalent:
+         * - sm: 576
+         * - md: 768
+         * - lg: 992
+         * - xl: 1200
          */
-        classModelTabsHeader: 'd-none d-*-flex',
-        classModelTabsContent: 'd-none d-*-block',
-        classModelAccordion: 'd-block d-*-none',
+        breakPoint: 'sm',
         /**
          * When you click a tab, which jquery selector do you use to find the corresponding accordion item
          * (the jquery context will be set to jAccordion).
@@ -90,6 +85,16 @@ At the moment, the options are the following (excerpt from the "plugin" source c
          * (the jquery context will be set to jTabsHeader).
          */
         tabTogglerSelector: 'a[data-toggle="tab"]',
+        /**
+         * When transforming from tabs to accordion,
+         * the tab content is inserted into the corresponding accordion content.
+         * However, sometimes you want the tab content to be inserted into a specific sub-element of the
+         * accordion content. That specific sub-element is defined here: using a jquery selector (with the context
+         * being the accordion content).
+         * If null, the tab content will be inserted directly at the root of the accordion content (the element
+         * with the collapse css class).
+         */
+        targetAccordionContent: ".card-body",
 
     };
 ```
@@ -176,7 +181,8 @@ And now call the jquery plugin:
 ```js
 $(document).ready(function () {
     $('#myTab').bootstrapResponsiveTabs({
-        breakPoint: "sm", // sm | md | lg | xl
+        breakPoint: "sm",
+        targetAccordionContent: ".card-body",
         // accordionItemTemplate: $('#accordion-item-template-wrapper .card:first'),
     });
 });
@@ -189,6 +195,10 @@ $(document).ready(function () {
 History Log
 ------------------
     
+- 1.1.0 -- 2019-06-11
+
+    - fix implementation not working, and bad approach not swapping content (type in an input not transferred for instance)
+
 - 1.0.0 -- 2019-06-10
 
     - initial commit

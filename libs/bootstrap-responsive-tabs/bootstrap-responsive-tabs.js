@@ -2,30 +2,28 @@
 // BOOTSTRAP RESPONSIVE TABS
 //----------------------------------------
 /*
- * Lingtalfi 2019-06-07
+ * Lingtalfi 2019-06-07 --> 2019-06-11
  *
  * The technique - what happens under the hood
  * ---------
- * Basically, this plugins creates the accordion right away, based on the existing tabs,
- * and then switches the visibility of the tabs or the accordion using bootstrap responsive classes (by default).
- * So there are three responsive classes to configure:
  *
- * - one for the tabs header (containing the tabs)      -- d-none/d-*-flex
- * - one for the tabs content                           -- d-none/d-*-block
- * - one for the accordion                              -- d-block/d-*-none
+ * Basically, this plugins creates the accordion structure right away, based on the existing tabs,
+ * and then stores all the tabs and accordion contents in memory.
  *
- * Note: we need two classes for the tabs, because of how bootstrap works: d-none/d-*-block classes are usually
- * used to configure the responsiveness of elements. However the tabs header is a display: flex, and so we need to use
- * the d-none/d-*-flex classes instead, that's why.
+ * Then, listening for window resizing, it swaps the content from the tabs to the accordion, or the other way around,
+ * depending on the chosen breakpoint.
  *
- * Note2: if you want more control about the breakpoints, you need to write your own media queries.
+ *
+ * Note: as for now, dynamically added tabs is not supported.
+ *
  *
  *
  *
  **/
-// https://john-dugan.com/jquery-plugin-boilerplate-explained/
 ;(function ($, window, document, undefined) {
 
+
+    var listeners = [];
 
     var pluginName = 'bootstrapResponsiveTabs';
 
@@ -36,10 +34,6 @@
         return prefix + '-bsr-unique-' + uniqueCounter++;
     }
 
-    function resolveClassModel(str, breakPoint) {
-        return str.replace('*', breakPoint);
-    }
-
 
     function Plugin(element, options) {
 
@@ -48,6 +42,22 @@
         this._defaults = $.fn.bootstrapResponsiveTabs.defaults;
         this.options = $.extend({}, this._defaults, options);
 
+
+        // translating bootstrap breakpoints into numbers (https://getbootstrap.com/docs/4.0/layout/overview/).
+        if ('sm' === this.options.breakPoint) {
+            this.options.breakPoint = 576;
+        } else if ('md' === this.options.breakPoint) {
+            this.options.breakPoint = 768;
+        } else if ('lg' === this.options.breakPoint) {
+            this.options.breakPoint = 992;
+        } else if ('xl' === this.options.breakPoint) {
+            this.options.breakPoint = 1200;
+        }
+
+
+        this.targets = {};
+
+
         this.nbTabs = 0;
         this.jTabsHeader = $(element);
         this.jTabsHeaderLinks = $(element).find(this.options.tabTogglerSelector); // cache
@@ -55,7 +65,12 @@
         this.jAccordion = null;
 
 
+        // whether the widget is currently in accordion or tab form
+        this.isAccordion = false;
+
+
         this.init();
+
     }
 
     $.extend(Plugin.prototype, {
@@ -72,15 +87,66 @@
 
 
             this.prepareTabs();
-            this.buildAccordion();
-            this.addResponsiveClasses();
+            this.prepareStructure();
             this.bindSyncEvents();
+
+
+            // trigger the first event manually
+            var windowSize = $(window).width();
+            if (windowSize < this.options.breakPoint) {
+                this.isAccordion = true;
+                this.jTabsContent.hide();
+                this.jTabsHeader.hide();
+                this.jAccordion.show();
+            } else {
+                this.isAccordion = false;
+                this.jTabsContent.show();
+                this.jTabsHeader.show();
+                this.jAccordion.hide();
+            }
+
+
+        },
+        turnToAccordion: function () {
+            if (false === this.isAccordion) {
+                for (var i in this.targets) {
+                    var jTabContent = this.targets[i]['tabContent'];
+                    var jAccordionContent = this.targets[i]['accordionContent'];
+                    jAccordionContent.empty();
+                    jTabContent.clone().find('*').detach().appendTo(jAccordionContent);
+                }
+
+                this.jTabsContent.hide();
+                this.jTabsHeader.hide();
+                this.jAccordion.show();
+                this.isAccordion = true;
+
+            }
+        },
+        turnToTabs: function () {
+            if (true === this.isAccordion) {
+                for (var i in this.targets) {
+                    var jTabContent = this.targets[i]['tabContent'];
+                    var jAccordionContent = this.targets[i]['accordionContent'];
+                    jTabContent.empty();
+                    jAccordionContent.clone().find('*').detach().appendTo(jTabContent);
+                }
+                this.jTabsContent.show();
+                this.jTabsHeader.show();
+                this.jAccordion.hide();
+                this.isAccordion = false;
+            }
+        },
+        listen: function (screenWidth) {
+            if (screenWidth < this.options.breakPoint) {
+                this.turnToAccordion();
+            } else {
+                this.turnToTabs();
+            }
         },
         /**
          * Will assign an auto-incremented data-item-number attribute to each tab link (in the tabs header).
          * So that we know which tab is clicked, and toggle the corresponding accordion item.
-         *
-         * Also, we count the number of tabs.
          *
          */
         prepareTabs: function () {
@@ -89,31 +155,42 @@
                 var tabNumber = ++$this.nbTabs;
                 $(this).attr('data-item-number', tabNumber);
             });
-
-
-            this.jTabsHeader.addClass(resolveClassModel(this.options.classModelTabsHeader, this.options.breakPoint));
-            this.jTabsContent.addClass(resolveClassModel(this.options.classModelTabsContent, this.options.breakPoint));
         },
         /**
-         * Create the accordion based on the current tabs
+         * Create the accordion based on the current tabs, store targets, and add responsive classes.
          */
-        buildAccordion: function () {
+        prepareStructure: function () {
             var $this = this;
+
+
             this.jAccordion = this.jTabsHeader.parent().find('brt-accordion');
             if (0 === this.jAccordion.length) {
 
+                var jAccordionContent;
+
+
                 var accordionId = generateId('accordion');
-                var cssClass = resolveClassModel(this.options.classModelAccordion, this.options.breakPoint);
-                this.jAccordion = $('<div id="' + accordionId + '" class="' + cssClass + '"></div>');
+
+
+                this.jAccordion = $('<div id="' + accordionId + '"></div>');
                 this.jTabsHeader.parent().append(this.jAccordion);
 
                 // parse all panes and build corresponding accordion items
                 var itemCpt = 1;
                 this.jTabsContent.find('.tab-pane').each(function () {
 
+
+                    $this.targets[itemCpt] = {
+                        'tabContent': $(this),
+                    };
+
+
+                    var isPaneSelected = $(this).hasClass('show');
+
+
                     var ariaSelected = "false";
                     var show = "";
-                    if (1 === itemCpt) {
+                    if (true === isPaneSelected) {
                         ariaSelected = "true";
                         show = "show";
 
@@ -129,17 +206,24 @@
                     s = s.replace(/\$show/g, show);
                     s = s.replace(/\$accordionId/g, accordionId);
                     s = s.replace(/\$content/g, tabContent);
-                    $this.jAccordion.append(s);
+                    var jAccordionItem = $(s);
+                    $this.jAccordion.append(jAccordionItem);
+
+
+                    jAccordionContent = jAccordionItem.find('#collapse-' + itemCpt);
+                    if (null !== $this.options.targetAccordionContent) {
+                        jAccordionContent = jAccordionContent.find($this.options.targetAccordionContent);
+                    }
+                    $this.targets[itemCpt]['accordionContent'] = jAccordionContent;
+
+
                     itemCpt++;
                 });
-
-
             }
-
-
         },
-        addResponsiveClasses: function () {
-        },
+        /**
+         * Ensure that when a tab is clicked, the corresponding accordion item is toggled, and vice-versa.
+         */
         bindSyncEvents: function () {
             var $this = this;
             this.jTabsHeaderLinks.on('shown.bs.tab', function (e) {
@@ -172,13 +256,25 @@
 
 
     $.fn.bootstrapResponsiveTabs = function (options) {
+
+
         this.each(function () {
             if (!$.data(this, "plugin_" + pluginName)) {
-                $.data(this, "plugin_" + pluginName, new Plugin(this, options));
+                var inst = new Plugin(this, options);
+                listeners.push(inst);
+                $.data(this, "plugin_" + pluginName, inst);
             }
         });
         return this;
     };
+
+
+    $(window).on('resize.bootstrapResponsiveTabs', function () {
+        var screenWidth = $(window).width();
+        for (var i in listeners) {
+            listeners[i].listen(screenWidth);
+        }
+    });
 
 
     $.fn.bootstrapResponsiveTabs.defaults = {
@@ -214,13 +310,15 @@
             '                                </div>\n' +
             '                            </div>\n' +
             '                        </div>',
-        breakPoint: 'sm',
         /**
-         * those three classes are added dynamically once on load
+         * The threshold below which the tabs turn into accordions.
+         * We can use either a number (of pixels), or a bootstrap 4 class equivalent:
+         * - sm: 576
+         * - md: 768
+         * - lg: 992
+         * - xl: 1200
          */
-        classModelTabsHeader: 'd-none d-*-flex',
-        classModelTabsContent: 'd-none d-*-block',
-        classModelAccordion: 'd-block d-*-none',
+        breakPoint: 'sm',
         /**
          * When you click a tab, which jquery selector do you use to find the corresponding accordion item
          * (the jquery context will be set to jAccordion).
@@ -231,6 +329,16 @@
          * (the jquery context will be set to jTabsHeader).
          */
         tabTogglerSelector: 'a[data-toggle="tab"]',
+        /**
+         * When transforming from tabs to accordion,
+         * the tab content is inserted into the corresponding accordion content.
+         * However, sometimes you want the tab content to be inserted into a specific sub-element of the
+         * accordion content. That specific sub-element is defined here: using a jquery selector (with the context
+         * being the accordion content).
+         * If null, the tab content will be inserted directly at the root of the accordion content (the element
+         * with the collapse css class).
+         */
+        targetAccordionContent: ".card-body",
 
     };
 
