@@ -195,6 +195,10 @@ $(document).ready(function () {
 History Log
 ------------------
     
+- 1.1.2 -- 2019-06-11
+
+    - fix bad content targetted
+
 - 1.1.1 -- 2019-06-11
 
     - fix tab header links not transferred

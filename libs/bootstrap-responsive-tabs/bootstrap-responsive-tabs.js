@@ -113,7 +113,7 @@
                     var jTabContent = this.targets[i]['tabContent'];
                     var jAccordionContent = this.targets[i]['accordionContent'];
                     jAccordionContent.empty();
-                    jTabContent.clone().find('*').detach().appendTo(jAccordionContent);
+                    jTabContent.clone().find('> *').detach().appendTo(jAccordionContent);
                 }
 
                 this.jTabsContent.hide();
@@ -129,7 +129,7 @@
                     var jTabContent = this.targets[i]['tabContent'];
                     var jAccordionContent = this.targets[i]['accordionContent'];
                     jTabContent.empty();
-                    jAccordionContent.clone().find('*').detach().appendTo(jTabContent);
+                    jAccordionContent.clone().find('> *').detach().appendTo(jTabContent);
                 }
                 this.jTabsContent.show();
                 this.jTabsHeader.show();
