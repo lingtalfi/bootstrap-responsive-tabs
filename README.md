@@ -231,6 +231,10 @@ Checkout the [second example of the Bootstrap Responsive Tabs demo](https://ling
 History Log
 ------------------
     
+- 1.1.4 -- 2019-06-11
+
+    - fix plugin detaching and attaching items instead of swapping (keep the same html nodes)
+
 - 1.1.3 -- 2019-06-11
 
     - fix "prepareStructure" not taking the child of accordionItemTemplate instead of the parent (when used with jquery element)
