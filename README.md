@@ -189,6 +189,40 @@ $(document).ready(function () {
 ```
 
 
+Overriding the default accordion item template
+===========
+
+When I want to override the accordion item template, I prefer to play with the html first.
+Here is the default html structure of the accordion item template:
+
+
+```html
+<div class="card">
+    <div class="card-header" id="heading-$i">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse"
+                    data-target="#collapse-$i"
+                    aria-expanded="$ariaSelected"
+                    aria-controls="collapse-$i"
+                    data-item-number="$i">
+                Tab $i
+            </button>
+        </h5>
+    </div>
+
+    <div id="collapse-$i" class="collapse $show"
+         aria-labelledby="heading-$i"
+         data-parent="#$accordionId">
+        <div class="card-body">
+            $content
+        </div>
+    </div>
+</div>
+```
+
+
+
+
 
 
 
