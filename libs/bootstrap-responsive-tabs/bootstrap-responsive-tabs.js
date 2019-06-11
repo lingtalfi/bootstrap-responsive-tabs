@@ -167,6 +167,7 @@
             if (0 === this.jAccordion.length) {
 
                 var jAccordionContent;
+                var jAccordionHeaderLink;
 
 
                 var accordionId = generateId('accordion');
@@ -210,6 +211,11 @@
                     $this.jAccordion.append(jAccordionItem);
 
 
+                    jAccordionHeaderLink = jAccordionItem.find('[data-toggle="collapse"]');
+                    $this.targets[itemCpt]['accordionHeaderLink'] = jAccordionHeaderLink;
+
+
+
                     jAccordionContent = jAccordionItem.find('#collapse-' + itemCpt);
                     if (null !== $this.options.targetAccordionContent) {
                         jAccordionContent = jAccordionContent.find($this.options.targetAccordionContent);
@@ -219,6 +225,14 @@
 
                     itemCpt++;
                 });
+
+
+                var n;
+                this.jTabsHeaderLinks.each(function(){
+                     n = $(this).attr("data-item-number");
+                     $this.targets[n]['accordionHeaderLink'].text($(this).text());
+                });
+
             }
         },
         /**
