@@ -195,6 +195,10 @@ $(document).ready(function () {
 History Log
 ------------------
     
+- 1.1.1 -- 2019-06-11
+
+    - fix tab header links not transferred
+
 - 1.1.0 -- 2019-06-11
 
     - fix implementation not working, and bad approach not swapping content (type in an input not transferred for instance)
